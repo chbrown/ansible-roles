@@ -1,0 +1,86 @@
+---
+- name: Add elasticsearch repository GPG key
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Add elasticsearch repository
+  yum_repository:
+    name: elasticsearch # elasticsearch-6.x
+    description: Elasticsearch repository for 6.x packages (elasticsearch, logstash, kibana, filebeat)
+    baseurl: https://artifacts.elastic.co/packages/6.x/yum
+    gpgcheck: yes
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Install Java 8 JRE (as OpenJDK)
+  package:
+    name: java-1.8.0-openjdk
+    state: present
+
+- name: Install elasticsearch, logstash, kibana, and nginx
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - elasticsearch
+    - logstash
+    - kibana
+    - nginx
+
+- name: Install logstash beats input plugin
+  logstash_plugin:
+    name: logstash-input-beats
+
+- name: Enable and start elasticsearch, logstash, kibana, and nginx
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - elasticsearch
+    - logstash
+    - kibana
+    - nginx
+
+# open up permissions to primary user for easier configuration / monitoring
+- name: Add primary SSH user (centos) to elasticsearch, logstash, and nginx groups
+  user:
+    name: "{{ ansible_ssh_user }}"
+    groups: elasticsearch,logstash,nginx
+    append: yes
+
+# open up logstash directories
+- file:
+    path: /etc/logstash/conf.d
+    recurse: true
+    owner: logstash
+    group: logstash
+- file:
+    path: /var/log/logstash
+    recurse: true
+    mode: g+w
+
+# open up nginx directories
+- file:
+    path: /etc/nginx/conf.d
+    recurse: true
+    owner: nginx
+    group: nginx
+    mode: g+w
+- file:
+    path: /var/log/nginx
+    recurse: true
+    mode: g+rx
+
+# host requires libselinux-python libsemanage-python
+- name: allow nginx to backproxy to other services
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+
+# clean up
+- name: clean yum cache
+  command: yum clean all
+  args:
+    warn: no
