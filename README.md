@@ -7,7 +7,7 @@ Via environment variable:
 Via [GNU Stow](https://www.gnu.org/software/stow/):
 
     mkdir -p ~/.ansible/roles
-    stow -t ~/.ansible/roles .
+    stow --ignore='README.md' -t ~/.ansible/roles .
 
 
 ## License
