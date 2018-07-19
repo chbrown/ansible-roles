@@ -39,6 +39,7 @@
     name: "{{ item }}"
     state: present
   with_items:
+    - pbzip2      # parallel bzip2
     - psmisc      # installs `pstree` and `killall`, among others, for inspecting running processes
     - lsof        # for inspecting open files
     - vnstat      # simple network traffic monitor
