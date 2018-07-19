@@ -76,7 +76,7 @@
     mode: 0644
     line: export SYSTEMD_PAGER=
 
-- name:
+- name: Fix systemd's broken pager (when sudo'ing)
   # (depends on /etc/profile.d/systemd_pager.sh having already been sourced in the shell session calling sudo)
   lineinfile:
     path: /etc/sudoers
