@@ -10,6 +10,11 @@ Via [GNU Stow](https://www.gnu.org/software/stow/):
     stow --ignore='README.md' -t ~/.ansible/roles .
 
 
+## Documentation
+
+- [Ansible Docs » Roles](https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html)
+
+
 ## License
 
 Copyright 2017–2018 Christopher Brown.
