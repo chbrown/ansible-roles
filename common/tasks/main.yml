@@ -1,4 +1,8 @@
 ---
+- name: Retry SSH connection for (up to) 5 minutes
+  wait_for_connection:
+    timeout: 300
+
 - name: Gather minimal facts
   setup:
     gather_subset: min
