@@ -1,0 +1,43 @@
+---
+# Install and configure the InfluxData TICK stack:
+#   Telegraf, InfluxDB, Chronograf, and Kapacitor
+
+- name: Add InfluxData repository GPG key
+  rpm_key:
+    state: present
+    key: https://repos.influxdata.com/influxdb.key
+
+- name: Add InfluxData repository
+  yum_repository:
+    name: influxdata
+    description: InfluxData Repository - RHEL $releasever
+    baseurl: https://repos.influxdata.com/rhel/$releasever/$basearch/stable
+    gpgcheck: yes
+    gpgkey: https://repos.influxdata.com/influxdb.key
+
+- name: Install InfluxData app suite
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:     # current/recent versions per https://www.influxdata.com/downloads/
+    - telegraf    # 1.7.2-1
+    - influxdb    # 1.6.0
+    - chronograf  # 1.6.0
+    - kapacitor   # 1.5.0
+
+- name: Stop and disable by default
+  service:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  with_items:
+    - telegraf
+    - influxdb
+    - chronograf
+    - kapacitor
+
+- name: Disable InfluxDB telemetry
+  lineinfile:
+    path: /etc/influxdb/influxdb.conf
+    regexp: reporting-disabled
+    line: reporting-disabled = true
