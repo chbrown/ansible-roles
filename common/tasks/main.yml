@@ -90,8 +90,8 @@
   file:
     path: /usr/local
     recurse: true
-    owner: "{{ ansible_ssh_user }}"
-    group: "{{ ansible_ssh_user }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
 
 - name: Set timezone to CT
   timezone:

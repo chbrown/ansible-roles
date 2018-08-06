@@ -45,7 +45,7 @@
 # open up permissions to primary user for easier configuration / monitoring
 - name: Add primary SSH user (centos) to elasticsearch, logstash, and nginx groups
   user:
-    name: "{{ ansible_ssh_user }}"
+    name: "{{ ansible_user }}"
     groups: elasticsearch,logstash,nginx
     append: yes
 
