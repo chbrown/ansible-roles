@@ -1,0 +1,12 @@
+# /etc/systemd/system/certbot.timer
+[Unit]
+Description=Run certbot (Let's Encrypt) renewal service daily
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1day
+Persistent=true
+Unit=certbot.service
+
+[Install]
+WantedBy=timers.target

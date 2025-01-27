@@ -1,0 +1,16 @@
+---
+- name: Install certbot package with DNS verification via Route53
+  # yum provides the certbot packages, but not in a consistent, dependable way,
+  # so we use the latest from PyPI instead
+  pip:
+    name: certbot-dns-route53
+    state: latest
+
+- name: Enable and start certbot service & timer
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - certbot.service
+    - certbot.timer
