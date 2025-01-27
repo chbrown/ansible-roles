@@ -1,0 +1,36 @@
+---
+- name: warn for non-CentOS
+  debug:
+    msg: >
+      OS family is not RedHat, it is "{{ ansible_os_family }}".
+      These tasks probably won't run properly.
+  when: ansible_os_family != "RedHat"
+
+- name: Install epel (Extra Packages for Enterprise Linux)
+  package:
+    name: epel-release
+    state: present
+
+# - name: update to latest repository information
+#   command: yum -y update
+
+- name: Disable SELinux
+  lineinfile:
+    # CentOS installs /etc/sysconfig/selinux as a symlink to ../selinux/config
+    path: /etc/sysconfig/selinux
+    regexp: ^SELINUX=
+    line: SELINUX=disabled
+
+- name: Upgrade pip
+  pip:
+    name: pip
+    state: latest
+
+- name: Install aws CLI tool
+  pip:
+    name: awscli
+    state: latest
+
+- name: Set timezone to CT
+  timezone:
+    name: America/Chicago
