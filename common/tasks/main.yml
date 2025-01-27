@@ -11,7 +11,7 @@
   package:
     name: "{{ item }}"
     state: present
-  with_items:
+  loop:
     - bzip2  # this really ought to be installed by default
     - unzip  # because some people apparently still use zip
     - wget   # like `curl` but defaults to downloading to a file rather than STDIN
@@ -27,16 +27,24 @@
   package:
     name: "{{ item }}"
     state: present
-  with_items:
+  loop:
     - pbzip2      # parallel bzip2
     - psmisc      # installs `pstree` and `killall`, among others, for inspecting running processes
     - lsof        # for inspecting open files
     - vnstat      # simple network traffic monitor
     - pv          # shell pipes monitor
     - ncdu        # interactive `du` for triaging filesystem space usage
-    - python-pip  # for `pip`, which we immediately self-upgrade
     - stow        # GNU stow, for symlink-based installation
-    - bind-utils  # for DNS utils like `dig` and `nslookup`
+
+- name: Install VNC apps
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - xfce4
+    - xfce4-goodies
+    - tightvncserver
+    - dbus-x11
 
 - name: Fix systemd's broken pager
   lineinfile:
@@ -54,6 +62,12 @@
     path: /etc/sudoers
     line: Defaults env_keep += "SYSTEMD_PAGER"
 
+- name: Ensure user is sudoer
+  user:
+    name: "{{ ansible_user }}"
+    groups: sudo
+    append: yes
+
 - name: Ensure the primary (SSH) user owns /usr/local
   file:
     path: /usr/local
@@ -61,8 +75,25 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
 
-- name: Disable mail server
-  service:
-    name: postfix
-    enabled: no
-    state: stopped
+- name: Treat caps-lock like ctrl
+  lineinfile:
+    path: /etc/default/keyboard
+    regexp: ^XKBOPTIONS=
+    line: XKBOPTIONS="ctrl:nocaps"
+
+- name: Disable sleeping
+  lineinfile:
+    path: /etc/systemd/sleep.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - regexp: AllowSuspend=
+      line: AllowSuspend=no
+    - regexp: AllowHibernation=
+      line: AllowHibernation=no
+
+- name: Allow sudo without having to type password
+  lineinfile:
+    path: /etc/sudoers
+    regexp: ^%sudo
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'

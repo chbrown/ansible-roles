@@ -21,6 +21,20 @@
     regexp: ^SELINUX=
     line: SELINUX=disabled
 
+- name: Disable mail server
+  service:
+    name: postfix
+    enabled: no
+    state: stopped
+
+- name: Install extra apps
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - python-pip  # for `pip`, which we immediately self-upgrade
+    - bind-utils  # for DNS utils like `dig` and `nslookup`
+
 - name: Upgrade pip
   pip:
     name: pip
