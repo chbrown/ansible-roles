@@ -97,3 +97,18 @@
     path: /etc/sudoers
     regexp: ^%sudo
     line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+
+- name: Autoselect the default option in GRUB after 10s
+  lineinfile:
+    path: /etc/default/grub
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - regexp: GRUB_TIMEOUT_STYLE=
+      line: GRUB_TIMEOUT_STYLE=menu
+    - regexp: GRUB_TIMEOUT=
+      line: GRUB_TIMEOUT=10
+
+- name: Update GRUB to reflect configuration change
+  # TODO: only run if the grub configuration actually changed
+  command: update-grub
